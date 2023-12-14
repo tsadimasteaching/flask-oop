@@ -1,3 +1,4 @@
+import datetime
 
 
 class User:
@@ -9,4 +10,7 @@ class User:
     def __str__(self):
         return self.name + " " + self.surname + " " + str(self.birth_year)
 
+    def get_age(self):
+        return datetime.date.today().year - int(self.birth_year)
 
+    age = property(fget=get_age)

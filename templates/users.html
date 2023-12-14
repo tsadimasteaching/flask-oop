@@ -3,13 +3,15 @@
   <tr>
     <th>Firstname</th>
     <th>Lastname</th>
-    <th>Birt Year</th>
+    <th>Birth Year</th>
+    <th>Age</th>
   </tr>
 {% for user in users %}
   <tr>
     <td>{{ user.name }}</td>
     <td>{{ user.surname }}</td>
-    <td>{{ user.birth_year }}</td>
+    <td>{{ user.birth_year }} </td>
+    <td>{{user.age|string}}</td>
   </tr>
 {% endfor %}
 </table>
