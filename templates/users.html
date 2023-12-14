@@ -1,0 +1,19 @@
+{% extends 'base.html' %} {% block content %}
+<table>
+  <tr>
+    <th>Firstname</th>
+    <th>Lastname</th>
+    <th>Birt Year</th>
+  </tr>
+{% for user in users %}
+  <tr>
+    <td>{{ user.name }}</td>
+    <td>{{ user.surname }}</td>
+    <td>{{ user.birth_year }}</td>
+  </tr>
+{% endfor %}
+</table>
+   <a href="/user" >Add User</a>
+
+
+{% endblock %}
