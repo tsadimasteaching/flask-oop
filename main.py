@@ -3,12 +3,13 @@ from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
 import logging
-from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, SubmitField, IntegerField
-from wtforms.validators import DataRequired, Length
+from flask_wtf import CSRFProtect
 
 
 from models import User
+from forms import UserForm
+from utils import search_user_by_email, update_user_in_users
+
 
 logging.basicConfig(filename="record.log", level=logging.DEBUG)
 
@@ -34,15 +35,6 @@ else:
     raise RuntimeError("Not found application configuration")
 
 users = []
-
-
-class UserForm(FlaskForm):
-    name = StringField("What is your name?", validators=[DataRequired(), Length(5, 40)])
-    surname = StringField(
-        "What is your surname?", validators=[DataRequired(), Length(5, 40)]
-    )
-    birth_year = IntegerField("Year of Birth?", validators=[DataRequired()])
-    submit = SubmitField("Submit")
 
 
 @app.route("/")
@@ -84,11 +76,32 @@ def show_user_form():
     form = UserForm()
     message = ""
     if form.validate_on_submit():
+        id = form.id.data
         name = form.name.data
         surname = form.surname.data
+        email = form.email.data
         birth_year = form.birth_year.data
-        user = User(name, surname, birth_year)
+        user = User(id, name, surname, email, birth_year)
         users.append(user)
         print(user)
+        return redirect(url_for("show_users", users=users))
+    return render_template("fuser_form.html", form=form, message=message)
+
+
+@app.route("/user/<int:id>", methods=["GET", "POST"])
+def edit_user(id):
+    user = search_user_by_email(users, id)
+    if not user:
+        return render_template("404.html", title="404"), 404
+    form = UserForm(obj=user)
+    message = ""
+    if form.validate_on_submit():
+        id = form.id.data
+        name = form.name.data
+        surname = form.surname.data
+        email = form.email.data
+        birth_year = form.birth_year.data
+        upd_user = User(id, name, surname, email, birth_year)
+        update_user_in_users(users, upd_user)
         return redirect(url_for("show_users", users=users))
     return render_template("fuser_form.html", form=form, message=message)
