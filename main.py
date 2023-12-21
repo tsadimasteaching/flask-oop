@@ -4,12 +4,13 @@ import os
 from dotenv import load_dotenv
 import logging
 from flask_wtf import CSRFProtect
+import pickle
 
 
 from models import User
 from forms import UserForm
 from utils import search_user_by_email, update_user_in_users
-
+import os
 
 logging.basicConfig(filename="record.log", level=logging.DEBUG)
 
@@ -34,7 +35,14 @@ if os.path.exists(dotenv_path):
 else:
     raise RuntimeError("Not found application configuration")
 
-users = []
+file_path = "./users.list"
+users_file = open(file_path, "rb")
+if os.stat(file_path).st_size > 0:
+    print("file > 0")
+    users = pickle.load(users_file)
+else:
+    users = []
+users_file.close()
 
 
 @app.route("/")
@@ -62,7 +70,9 @@ def user_form():
         birth_year = request.form["birth_year"]
         user = User(name, surname, birth_year)
         users.append(user)
-        print(user)
+        users_file = open(file_path, "wb")
+        pickle.dump(users, users_file)
+        users_file.close()
         return redirect(url_for("show_users", users=users))
 
 
@@ -83,7 +93,9 @@ def show_user_form():
         birth_year = form.birth_year.data
         user = User(id, name, surname, email, birth_year)
         users.append(user)
-        print(user)
+        users_file = open(file_path, "wb")
+        pickle.dump(users, users_file)
+        users_file.close()
         return redirect(url_for("show_users", users=users))
     return render_template("fuser_form.html", form=form, message=message)
 
