@@ -1,21 +1,25 @@
 {% extends 'base.html' %} {% block content %}
-<table>
+<table class="table">
+  <thead>
   <tr>
-    <th>Firstname</th>
-    <th>Lastname</th>
-    <th>Birth Year</th>
-    <th>Age</th>
+    <th scope="col">Firstname</th>
+    <th scope="col">Lastname</th>
+    <th scope="col">Birth Year</th>
+    <th scope="col">Age</th>
   </tr>
+</thead>
+<tbody>
 {% for user in users %}
-  <tr>
+  <tr scope="row">
     <td>{{ user.name }}</td>
     <td>{{ user.surname }}</td>
     <td>{{ user.birth_year }} </td>
     <td>{{user.age|string}}</td>
   </tr>
 {% endfor %}
+</tbody>
 </table>
-   <a href="/user" >Add User</a>
+   <a href="/fuser" >Add User</a>
 
 
 {% endblock %}
