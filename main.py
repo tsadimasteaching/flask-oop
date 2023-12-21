@@ -36,7 +36,12 @@ else:
     raise RuntimeError("Not found application configuration")
 
 file_path = "./users.list"
-users_file = open(file_path, "rb")
+try:
+    users_file = open(file_path, "rb")
+except FileNotFoundError:
+    users_file = open(file_path, "wb")
+    users_file.close()
+    users_file = open(file_path, "rb")
 if os.stat(file_path).st_size > 0:
     print("file > 0")
     users = pickle.load(users_file)

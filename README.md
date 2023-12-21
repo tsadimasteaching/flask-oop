@@ -1,6 +1,6 @@
 ## Create virtual environment
 ```bash
-python3 -m vevn fvenv
+python3 -m venv fvenv
 ```
 
 ## activate virtual environment
