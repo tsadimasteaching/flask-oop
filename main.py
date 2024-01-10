@@ -9,16 +9,14 @@ import pickle
 
 from models import User
 from forms import UserForm
-from utils import search_user_by_email, update_user_in_users
+from utils import search_user_by_id, update_user_in_users
 import os
 
 logging.basicConfig(filename="record.log", level=logging.DEBUG)
 
 
 app = Flask(__name__)
-# Bootstrap-Flask requires this line
 bootstrap = Bootstrap5(app)
-# Flask-WTF requires this line
 csrf = CSRFProtect(app)
 
 import secrets
@@ -31,12 +29,18 @@ app.logger.info("Environmental variable Initialized")
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
+    USERFILE = os.environ.get("USERFILE")
     print("APP_NAME is {}".format(os.environ.get("APP_NAME")))
+    print("USER FILE is {}".format(USERFILE))
 else:
     raise RuntimeError("Not found application configuration")
 
-file_path = "./users.list"
-users_file = open(file_path, "rb")
+file_path = USERFILE
+try:
+    users_file = open(file_path, "rb")
+except FileNotFoundError:
+    users_file = open(file_path, "a")
+
 if os.stat(file_path).st_size > 0:
     print("file > 0")
     users = pickle.load(users_file)
@@ -102,7 +106,8 @@ def show_user_form():
 
 @app.route("/user/<int:id>", methods=["GET", "POST"])
 def edit_user(id):
-    user = search_user_by_email(users, id)
+    user = search_user_by_id(users, id)
+    app.logger.info(user)
     if not user:
         return render_template("404.html", title="404"), 404
     form = UserForm(obj=user)
