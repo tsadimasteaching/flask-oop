@@ -16,7 +16,9 @@ logging.basicConfig(filename="record.log", level=logging.DEBUG)
 
 
 app = Flask(__name__)
+# Bootstrap-Flask requires this line
 bootstrap = Bootstrap5(app)
+# Flask-WTF requires this line
 csrf = CSRFProtect(app)
 
 import secrets
@@ -107,7 +109,6 @@ def show_user_form():
 @app.route("/user/<int:id>", methods=["GET", "POST"])
 def edit_user(id):
     user = search_user_by_id(users, id)
-    app.logger.info(user)
     if not user:
         return render_template("404.html", title="404"), 404
     form = UserForm(obj=user)
