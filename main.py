@@ -4,7 +4,8 @@ import os
 from dotenv import load_dotenv
 import logging
 from flask_wtf import CSRFProtect
-import pickle
+from database import init_db, db_session
+
 
 
 from models import User
@@ -21,105 +22,47 @@ bootstrap = Bootstrap5(app)
 # Flask-WTF requires this line
 csrf = CSRFProtect(app)
 
+
+with app.app_context():
+    init_db()
+
+
+
 import secrets
 
 foo = secrets.token_urlsafe(16)
 app.secret_key = foo
 
-app.logger.info("Environmental variable Initialized")
 
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-    USERFILE = os.environ.get("USERFILE")
-    print("APP_NAME is {}".format(os.environ.get("APP_NAME")))
-    print("USER FILE is {}".format(USERFILE))
-else:
-    raise RuntimeError("Not found application configuration")
 
-file_path = USERFILE
-try:
-    users_file = open(file_path, "rb")
-except FileNotFoundError:
-    users_file = open(file_path, "a")
 
-if os.stat(file_path).st_size > 0:
-    print("file > 0")
-    users = pickle.load(users_file)
-else:
-    users = []
-users_file.close()
-
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.close()
 
 @app.route("/")
 def hello():
     return render_template("index.html")
 
 
-@app.route("/hello/<string:username>")
-def say_hello(username):
-    return f"Hello {username}"
-
-
-@app.route("/number/<int:num>")
-def get_number(num):
-    return f"Number {num}"
-
-
-@app.route("/user", methods=["GET", "POST"])
-def user_form():
-    if request.method == "GET":
-        return render_template("user_form.html")
-    else:
-        name = request.form["name"]
-        surname = request.form["surname"]
-        birth_year = request.form["birth_year"]
-        user = User(name, surname, birth_year)
-        users.append(user)
-        users_file = open(file_path, "wb")
-        pickle.dump(users, users_file)
-        users_file.close()
-        return redirect(url_for("show_users", users=users))
-
-
 @app.route("/users", methods=["GET"])
 def show_users():
+    users = User.query.all()
     return render_template("users.html", users=users)
 
 
-@app.route("/fuser", methods=["GET", "POST"])
+@app.route("/user", methods=["GET", "POST"])
 def show_user_form():
     form = UserForm()
     message = ""
     if form.validate_on_submit():
-        id = form.id.data
         name = form.name.data
         surname = form.surname.data
-        email = form.email.data
         birth_year = form.birth_year.data
-        user = User(id, name, surname, email, birth_year)
-        users.append(user)
-        users_file = open(file_path, "wb")
-        pickle.dump(users, users_file)
-        users_file.close()
-        return redirect(url_for("show_users", users=users))
-    return render_template("fuser_form.html", form=form, message=message)
+        user = User(name=name, surname=surname, birth_year=birth_year)
+        db_session.add(user)
+        db_session.commit()
+        return redirect(url_for("show_users"))
+        #return redirect(url_for("show_users", users=users))
+    return render_template("user_form.html", form=form, message=message)
 
-
-@app.route("/user/<int:id>", methods=["GET", "POST"])
-def edit_user(id):
-    user = search_user_by_id(users, id)
-    if not user:
-        return render_template("404.html", title="404"), 404
-    form = UserForm(obj=user)
-    message = ""
-    if form.validate_on_submit():
-        id = form.id.data
-        name = form.name.data
-        surname = form.surname.data
-        email = form.email.data
-        birth_year = form.birth_year.data
-        upd_user = User(id, name, surname, email, birth_year)
-        update_user_in_users(users, upd_user)
-        return redirect(url_for("show_users", users=users))
-    return render_template("fuser_form.html", form=form, message=message)
