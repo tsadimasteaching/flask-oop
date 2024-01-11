@@ -6,7 +6,6 @@ from config import connection_string
 
 print(connection_string)
 engine = create_engine(connection_string, echo=True)
-Session = scoped_session(sessionmaker())
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
