@@ -20,7 +20,12 @@
     <td>{{ user.email }}</td>
     <td>{{ user.birth_year }} </td>
     <td>{{user.age|string}}</td>
-    <td> <a class="btn btn-primary" href="/user/{{user.id}}">Edit</a></td>
+    <td>
+      <a class="btn btn-primary" href="/user/{{user.id}}">Edit</a>
+<!--      <a class="btn btn-danger" href="/user/{{user.id}}/delete">Delete</a>-->
+      <a class="btn btn-primary" href="{{ url_for('show_user_jobs', user_id=user.id) }}">Jobs</a>
+      <a class="btn btn-danger" href = "{{ url_for('show_job_form', uid=user.id) }}">Add Job</a>
+    </td>
   </tr>
 {% endfor %}
 </tbody>

@@ -22,7 +22,7 @@ class User(Base):
     jobs: Mapped[List["Job"]] = relationship(back_populates="user")
 
     def __str__(self):
-        return f"<User username={self.username}, email={self.email}>"
+        return f"<User username={self.surname}, email={self.name}>"
 
 
 class Job(Base):

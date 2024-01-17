@@ -11,3 +11,8 @@ class UserForm(FlaskForm):
     )
     birth_year = IntegerField("Year of Birth?", validators=[DataRequired()])
     submit = SubmitField("Submit")
+
+
+class JobForm(FlaskForm):
+    name = StringField("What is your job?", validators=[DataRequired(), Length(5, 40)])
+    submit = SubmitField("Submit")

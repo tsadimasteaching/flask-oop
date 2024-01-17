@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, request, render_template
+from flask import Flask, redirect, url_for, request, render_template, flash
 from flask_bootstrap import Bootstrap5
 import os
 from dotenv import load_dotenv
@@ -8,9 +8,8 @@ from database import init_db, db_session
 
 
 
-from models import User
-from forms import UserForm
-from utils import search_user_by_id, update_user_in_users
+from models import User, Job
+from forms import UserForm, JobForm
 import os
 
 logging.basicConfig(filename="record.log", level=logging.DEBUG)
@@ -66,3 +65,54 @@ def show_user_form():
         #return redirect(url_for("show_users", users=users))
     return render_template("user_form.html", form=form, message=message)
 
+@app.route("/user/<int:user_id>", methods=["GET", "POST"])
+def show_user_form_update(user_id):
+    message = ""
+    user = User.query.filter(User.id == id).first()
+    if not user:
+        return render_template("404.html", title="404"), 404
+    form = UserForm(obj=user)
+    if form.validate_on_submit():
+        name = form.name.data
+        surname = form.surname.data
+        birth_year = form.birth_year.data
+        user.name = name
+        user.surname = surname
+        user.birth_year = birth_year
+        db_session.commit()
+        return redirect(url_for("show_users"))
+    return render_template("user_form.html", form=form, message=message, user=user)
+
+
+
+@app.route('/job/<uid>', methods=['GET','POST'])
+def show_job_form(uid):
+    message = ""
+    user = User.query.filter(User.id == uid).first()
+    form = JobForm(user=user)
+    if form.validate_on_submit():
+        name = form.name.data
+        job = Job(name=name, user=user)
+        db_session.add(job)
+        db_session.commit()
+        flash('Record was successfully added')
+        return redirect(url_for('show_users'))
+    return render_template("user_form.html", form=form, message=message, user=user)
+
+
+@app.route("/job/<uid>/<jid>", methods = ["DELETE"])
+def delete_job_from_user(uid, jid):
+    user = User.query.filter(User.id == uid).first()
+    job = Job.query.filter(Job.id == jid).first()
+    user.jobs.remove(job)
+    db_session.commit()
+    return redirect(url_for("show_users"))
+
+
+@app.route("/jobs/<user_id>", methods=["GET"])
+def show_user_jobs(user_id):
+    user = User.query.filter(User.id == user_id).first()
+    print(user.jobs)
+    jobs = user.jobs
+    print(jobs)
+    return render_template("user_jobs.html", user=user, jobs=jobs)
