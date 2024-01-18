@@ -16,6 +16,10 @@
     <td>
       <a class="btn btn-primary" href="">Edit</a>
       <a class="btn btn-danger" href="/job/{{user.id}}/{{job.id}}/delete">Delete</a>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <button type="button-danger" class="btn btn-danger" id="{{job.id}}"
+                            name="deleteJob"><i class="remove user icon"></i>
+                        Delete (JS)</button>
     </td>
   </tr>
 {% endfor %}
@@ -23,5 +27,27 @@
 </table>
    <a href = "{{ url_for('show_job_form', uid=user.id) }}">Add Job</a>
 
+
+<script type="text/javascript">
+    var csrf_token = "{{ csrf_token() }}";
+
+        $("[name='deleteJob']").click(function() {
+            var urlCall = "/job/";
+            $.ajax({
+                url : urlCall + $(this).attr('id'),
+                type : 'DELETE',
+                headers: {
+                "X-CSRFToken": csrf_token,
+                },
+                      success : function(result) {
+                    console.log(result);
+                    $(location).attr("href", value="/jobs/{{user.id}}");
+                },
+                error : function(result) {
+                    console.log(result);
+                },
+            });
+        });
+    </script>
 
 {% endblock %}

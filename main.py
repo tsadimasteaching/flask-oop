@@ -95,8 +95,9 @@ def show_job_form(uid):
         job = Job(name=name, user=user)
         db_session.add(job)
         db_session.commit()
+        jobs = user.jobs
         flash('Record was successfully added')
-        return redirect(url_for('show_users'))
+        return render_template("user_jobs.html", user=user, jobs=jobs)
     return render_template("user_form.html", form=form, message=message, user=user)
 
 
@@ -114,5 +115,17 @@ def delete_job(uid, jid):
 @app.route("/jobs/<user_id>", methods=["GET"])
 def show_user_jobs(user_id):
     user = User.query.filter(User.id == user_id).first()
+    jobs = user.jobs
+    return render_template("user_jobs.html", user=user, jobs=jobs)
+
+
+@app.route("/job/<jid>", methods=["DELETE"])
+def delete_job_by_id(jid):
+    job = Job.query.filter(Job.id == jid).first()
+    user = job.user
+
+    print(job)
+    db_session.delete(job)
+    db_session.commit()
     jobs = user.jobs
     return render_template("user_jobs.html", user=user, jobs=jobs)
