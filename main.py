@@ -100,19 +100,19 @@ def show_job_form(uid):
     return render_template("user_form.html", form=form, message=message, user=user)
 
 
-@app.route("/job/<uid>/<jid>", methods = ["DELETE"])
-def delete_job_from_user(uid, jid):
+@app.route("/job/<uid>/<jid>/delete", methods = ["GET"])
+def delete_job(uid, jid):
     user = User.query.filter(User.id == uid).first()
     job = Job.query.filter(Job.id == jid).first()
+    db_session.delete(job)
     user.jobs.remove(job)
     db_session.commit()
-    return redirect(url_for("show_users"))
+    jobs = user.jobs
+    return render_template("user_jobs.html", user=user, jobs=jobs)
 
 
 @app.route("/jobs/<user_id>", methods=["GET"])
 def show_user_jobs(user_id):
     user = User.query.filter(User.id == user_id).first()
-    print(user.jobs)
     jobs = user.jobs
-    print(jobs)
     return render_template("user_jobs.html", user=user, jobs=jobs)
