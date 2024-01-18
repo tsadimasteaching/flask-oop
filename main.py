@@ -49,6 +49,12 @@ def show_users():
     users = User.query.all()
     return render_template("users.html", users=users)
 
+@app.route("/jobs", methods=["GET"])
+def show_jobs():
+    jobs = Job.query.all()
+    return render_template("jobs.html", jobs=jobs)
+
+
 
 @app.route("/user", methods=["GET", "POST"])
 def show_user_form():
