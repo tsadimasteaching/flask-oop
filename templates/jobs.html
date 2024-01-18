@@ -12,7 +12,7 @@
   <tr scope="row">
     <td>{{ job.id }}</td>
     <td>{{ job.name }}</td>
-     <td>{{ job.user.name }} {{ job.user.surname }}</td>
+     <td><a href="/user/{{job.user.id}}">{{ job.user.name }} {{ job.user.surname }}</a></td>
   </tr>
 {% endfor %}
 </tbody>

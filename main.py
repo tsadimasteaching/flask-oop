@@ -74,7 +74,7 @@ def show_user_form():
 @app.route("/user/<int:user_id>", methods=["GET", "POST"])
 def show_user_form_update(user_id):
     message = ""
-    user = User.query.filter(User.id == id).first()
+    user = User.query.filter(User.id == user_id).first()
     if not user:
         return render_template("404.html", title="404"), 404
     form = UserForm(obj=user)
